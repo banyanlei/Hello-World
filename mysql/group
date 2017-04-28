@@ -1,0 +1,24 @@
+-- 
+select DATE_FORMAT(attack_timestamp,'%Y%m%d') day,count(id) warncount from attack_device group by day ;
+
+select DATE_FORMAT(attack_timestamp,'%Y%m%d') day,count(id) logcount  from attack_device where log_id = '1' group by day;
+
+将时间和warn和log整合在一起，赞
+select DATE_FORMAT(attack_timestamp,'%Y%m%d') day,count(id) warncount,SUM(case when log_id = '1' then 1 else 0 end) logcount  from attack_device group by day;
+
+将攻击源城市和被攻击城市和次数展示
+select attack_location,device_location,count(*)  
+from attack_device  join device_info  on attack_device.device_id=device_info.device_id 
+where attack_device.device_id = 'unbe111'
+group by attack_location,device_location; 
+
+--以攻击ip和被攻击设备做分组
+select attack_ip,device_id,count(*) from attack_device group by attack_ip,device_id;
+-- 继续尝试
+select a.attack_ip n,a.attack_timestamp m,d.device_ip,
+(select count(*) from attack_device group by n,m) AS count 
+from attack_device a left join device_info d on a.device_id=d.device_id;
+-- 继续尝试
+select attack_ip n,attack_timestamp m,
+(select count(*) from attack_device  where attack_ip=n and device_id=m) AS count 
+from attack_device ;
